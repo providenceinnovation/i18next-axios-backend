@@ -1,33 +1,21 @@
+This project was forked from [`i18next-fetch-backend`](https://github.com/i18next/i18next-xhr-backend) and adapted to use axios instead of `global.fetch`
+
 # Introduction
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/perrin4869/i18next-fetch-backend.svg?style=flat-square)](https://greenkeeper.io/)
-[![Travis](https://img.shields.io/travis/perrin4869/i18next-fetch-backend/master.svg?style=flat-square)](https://travis-ci.org/perrin4869/i18next-fetch-backend)
-[![npm version](https://img.shields.io/npm/v/i18next-fetch-backend.svg?style=flat-square)](https://www.npmjs.com/package/i18next-fetch-backend)
-[![David](https://img.shields.io/david/perrin4869/i18next-fetch-backend.svg?style=flat-square)](https://david-dm.org/perrin4869/i18next-fetch-backend)
-
-This is a simple i18next backend to be used in the browser. It will load resources from a backend server using the [fetch](https://developer.mozilla.org/en/docs/Web/API/Fetch_API) API.
+This is a simple i18next backend to be used in the browser. It will load resources from a backend server using [axios](https://github.com/axios/axios).
 
 # Getting started
 
-This backend is most useful when `XMLHttpRequest` is not available, such as with Service Worker contexts. It is also useful when support for older browsers is not a concern, and newer APIs are a priority.
-Source can be loaded via [npm](https://www.npmjs.com/package/i18next-fetch-backend).
-
-```
-# npm package
-$ npm install --save i18next-fetch-backend
-
-# bower
-$ bower install --save i18next-fetch-backend
-```
+This backend is most useful when `XMLHttpRequest` is not available, such as with Service Worker contexts or when running in a non-shimmed node server environment.
 
 Wiring up:
 
 ```js
 import i18next from 'i18next';
-import Fetch from 'i18next-fetch-backend';
+import axiosBackend from 'i18next-axios-backend';
 
 i18next
-  .use(fetch)
+  .use(axiosBackend)
   .init(i18nextOptions);
 ```
 
@@ -35,7 +23,7 @@ i18next
 
 ## Backend Options
 
-The same options supported by [i18next-xhr-backend](https://github.com/i18next/i18next-xhr-backend) are supported here, except for those used by `XMLHttpRequest`. Instead, you can provide an `init` option that will be provided to `fetch`, documented [here](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters).
+The same options supported by [i18next-xhr-backend](https://github.com/i18next/i18next-xhr-backend) are supported here, except for those used by `XMLHttpRequest`. Instead, you can provide an `init` option that will be provided to `axios`.
 
 ```js
 {
@@ -55,13 +43,12 @@ The same options supported by [i18next-xhr-backend](https://github.com/i18next/i
 
   // init option for fetch, for example
   init: {
-    mode: 'cors',
-    credentials: 'same-origin',
-    cache: 'default',
-  },
-
-  // define a custom fetch function
-  ajax: function (url, options, callback) {},
+    timeout: 1000,
+    auth: {
+      username: 'janedoe',
+      password: 's00pers3cret'
+    }
+  }
 }
 ```
 
@@ -71,10 +58,10 @@ Options can be passed in:
 
 ```js
 import i18next from 'i18next';
-import Fetch from 'i18next-fetch-backend';
+import axiosBackend from 'i18next-axios-backend';
 
 i18next
-  .use(Fetch)
+  .use(axiosBackend)
   .init({
     backend: options
   });
@@ -83,51 +70,16 @@ i18next
 on construction:
 
 ```js
-  import Fetch from 'i18next-fetch-backend';
-  const fetch = new Fetch(null, options);
+  import AxiosBackend from 'i18next-axios-backend';
+  const fetch = new AxiosBackend(null, options);
 ```
 
 via calling init:
 
 ```js
-  import Fetch from 'i18next-fetch-backend';
-  const fetch = new Fetch();
+  import AxiosBackend from 'i18next-axios-backend';
+  const axiosBackend = new AxiosBackend();
   fetch.init(options);
-```
-
-## Service Worker example
-
-```js
-import i18next from 'i18next';
-import Fetch from 'i18next-fetch-backend';
-
-let t = null;
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(new Promise((resolve, reject) => {
-    i18next
-      .use(Fetch)
-      .init({
-        fallbackLng: ['ja', 'en', 'zh'],
-        preload: ['ja', 'en', 'zh'],
-        ns: 'translation',
-        defaultNS: 'translation',
-        keySeparator: false, // Allow usage of dots in keys
-        nsSeparator: false,
-        backend: {
-          loadPath: '/locales/{{lng}}/{{ns}}.json',
-        },
-      }, (err, _t) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-
-        t = _t;
-        resolve();
-      });
-  }));
-});
 ```
 
 # IE \<= 10 Support
@@ -136,11 +88,11 @@ Because of an [issue](https://github.com/babel/babel/issues/116) in how IE used 
 
 ```js
 import i18next from 'i18next';
-import FetchBackend from 'i18next-fetch-backend';
+import AxiosBackend from 'i18next-axios-backend';
 
-FetchBackend.type = 'backend';
+AxiosBackend.type = 'backend';
 
 i18next
-  .use(FetchBackend)
+  .use(AxiosBackend)
   .init(/* ... */);
 ```
