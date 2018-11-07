@@ -8,7 +8,7 @@ export default class extends XHRBackend {
       Object.assign(
         {
           ajax: (url, { init } = {}, cb) => axios(url, Object.assign({
-            transformResponse: undefined, // i18next expects JSON, not an object
+            transformResponse: [(data) => data], // i18next expects JSON, not an object
           }, init)).then(
             res => cb(res.data, res),
             err => cb('', err),
