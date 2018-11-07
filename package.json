@@ -1,6 +1,6 @@
 {
   "name": "@providenceinnovation/i18next-axios-backend",
-  "version": "0.1.0",
+  "version": "1.0.2",
   "description": "backend layer for i18next using axios",
   "main": "lib/index.js",
   "scripts": {
